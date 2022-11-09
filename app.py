@@ -219,22 +219,22 @@ def profile():
         flash("Access unauthorized.", "danger")
         return redirect("/")
     
-    form = UserEditForm()
+    form = UserEditForm(obj=g.user)
 
     if form.validate_on_submit():
         user = User.authenticate(form.username.data,
                                  form.password.data)
 
         if user:
-            if form.email.data:
-                user.email = form.email.data
-            if form.image_url.data:
-                user.image_url = form.image_url.data
-            if form.header_image_url.data:
-                user.header_image_url = form.header_image_url.data
-            if form.bio.data:
-                user.bio = form.bio.data
+            user.email = form.email.data
+            user.image_url = form.image_url.data
+            user.header_image_url = form.header_image_url.data
+            user.bio = form.bio.data
+            db.session.add(user)
+            db.session.commit()
+
             return redirect(f'/users/{user.id}')
+            
         flash("Invalid credentials.", 'danger')
     
     return render_template('/users/edit.html', form=form)
