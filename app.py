@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
 from models import db, connect_db, User, Message
 
 CURR_USER_KEY = "curr_user"
@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
@@ -31,7 +31,7 @@ connect_db(app)
 
 @app.before_request
 def add_user_to_g():
-    """If we're logged in, add curr user to Flask global."""
+    """If we're logged in, add curr user to Flask global.""" #what is flask global????
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -77,8 +77,9 @@ def signup():
             )
             db.session.commit()
 
-        except IntegrityError:
+        except IntegrityError as err:
             flash("Username already taken", 'danger')
+            print(err) ############
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -113,7 +114,10 @@ def login():
 def logout():
     """Handle logout of user."""
 
-    # IMPLEMENT THIS
+    flash("Goodbye!", "success")
+    do_logout()
+    return redirect('/login')
+
 
 
 ##############################################################################
@@ -125,7 +129,7 @@ def list_users():
 
     Can take a 'q' param in querystring to search by that username.
     """
-
+    
     search = request.args.get('q')
 
     if not search:
@@ -211,7 +215,30 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    form = UserEditForm()
+
+    if form.validate_on_submit():
+        user = User.authenticate(form.username.data,
+                                 form.password.data)
+
+        if user:
+            if form.email.data:
+                user.email = form.email.data
+            if form.image_url.data:
+                user.image_url = form.image_url.data
+            if form.header_image_url.data:
+                user.header_image_url = form.header_image_url.data
+            if form.bio.data:
+                user.bio = form.bio.data
+            return redirect(f'/users/{user.id}')
+        flash("Invalid credentials.", 'danger')
+    
+    return render_template('/users/edit.html', form=form)
+
 
 
 @app.route('/users/delete', methods=["POST"])

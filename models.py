@@ -44,7 +44,7 @@ class Likes(db.Model):
 
     message_id = db.Column(
         db.Integer,
-        db.ForeignKey('messages.id', ondelete='cascade'),
+        db.ForeignKey('messages.id', ondelete='cascade'), ########## why cascade?
         unique=True
     )
 
@@ -78,7 +78,7 @@ class User(db.Model):
 
     header_image_url = db.Column(
         db.Text,
-        default="/static/images/warbler-hero.jpg"
+        default="/static/images/warbler-hero.jpg" ############This doesn't seem to work...
     )
 
     bio = db.Column(
@@ -197,7 +197,7 @@ class Message(db.Model):
         nullable=False,
     )
 
-    user = db.relationship('User')
+    user = db.relationship('User') #duplicate of above foreign key?
 
 
 def connect_db(app):
