@@ -179,6 +179,9 @@ nav + .container {
   position: relative;
   box-shadow: 0 1px 1px rgba(136, 153, 166, 0.15);
 }
+#warbler-hero img {
+  max-height: 350px;
+}
 
 .timeline-image {
   border-radius: 48px;

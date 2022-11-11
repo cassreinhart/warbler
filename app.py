@@ -234,7 +234,7 @@ def profile():
             db.session.commit()
 
             return redirect(f'/users/{user.id}')
-            
+
         flash("Invalid credentials.", 'danger')
     
     return render_template('/users/edit.html', form=form)
@@ -325,7 +325,7 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, user=g.user)
 
     else:
         return render_template('home-anon.html')
