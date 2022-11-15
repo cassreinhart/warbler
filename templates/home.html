@@ -40,7 +40,8 @@
 
     <div class="col-lg-6 col-md-8 col-sm-12">
       <ul class="list-group" id="messages">
-        {% for msg in messages %}
+        {% for followed_user in user.following %}
+          {% for msg in followed_user.messages %}
           <li class="list-group-item">
             <a href="/messages/{{ msg.id  }}" class="message-link"/>
             <a href="/users/{{ msg.user.id }}">
@@ -61,6 +62,7 @@
               </button>
             </form>
           </li>
+          {% endfor %}
         {% endfor %}
       </ul>
     </div>
